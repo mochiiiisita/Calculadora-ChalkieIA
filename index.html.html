@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>¿Cuánto tiempo ahorrás con IA?</title>
+  <style>
+    :root {
+      --verde: #0b7a55;
+      --verde-oscuro: #075a3f;
+      --verde-suave: #e3f2ea;
+      --crema: #fbf7ec;
+      --tinta: #1d2a24;
+      --tinta-suave: #55645c;
+      --gris: #d9ded6;
+      --ambar: #b26a00;
+      --ambar-suave: #fff3dc;
+      --radio: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--crema);
+      color: var(--tinta);
+      line-height: 1.45;
+    }
+
+    header {
+      background: var(--verde);
+      color: #fff;
+      padding: 28px 16px 24px;
+      text-align: center;
+    }
+    header h1 { margin: 0 0 6px; font-size: 1.5rem; }
+    header p { margin: 0; opacity: .9; font-size: .95rem; }
+
+    main {
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .tarjeta {
+      background: #fff;
+      border-radius: var(--radio);
+      padding: 18px 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    }
+    .tarjeta h2 {
+      margin: 0 0 6px;
+      font-size: 1.05rem;
+      color: var(--verde-oscuro);
+    }
+    .bajada {
+      margin: 0 0 16px;
+      font-size: .88rem;
+      color: var(--tinta-suave);
+    }
+
+    /* Campos de la sección 1 */
+    .campo { margin-bottom: 20px; }
+    .campo:last-child { margin-bottom: 0; }
+    .campo-cabecera {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .campo label { font-weight: 600; font-size: .95rem; }
+    .ayuda {
+      display: block;
+      font-size: .8rem;
+      color: var(--tinta-suave);
+      margin-top: 2px;
+    }
+    .valor {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: none;
+    }
+    .valor input {
+      width: 72px;
+      padding: 6px 8px;
+      font: inherit;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--verde-oscuro);
+      text-align: right;
+      border: 2px solid var(--gris);
+      border-radius: 8px;
+      background: #fff;
+    }
+    .valor input:focus {
+      outline: none;
+      border-color: var(--verde);
+    }
+    .valor span {
+      font-size: .85rem;
+      color: var(--tinta-suave);
+      min-width: 32px;
+    }
+    input[type="range"] {
+      width: 100%;
+      margin-top: 10px;
+      accent-color: var(--verde);
+      height: 28px;
+    }
+
+    /* Sección 2 automática */
+    .auto-lista {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .auto-lista li {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--gris);
+      font-size: .92rem;
+    }
+    .auto-lista li:last-child { border-bottom: 0; }
+    .auto-lista strong { color: var(--verde-oscuro); white-space: nowrap; }
+    .supuesto {
+      margin: 12px 0 0;
+      font-size: .8rem;
+      color: var(--tinta-suave);
+      background: var(--crema);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+
+    /* Resultado principal */
+    .destacado {
+      background: var(--verde);
+      color: #fff;
+      text-align: center;
+    }
+    .destacado h2 { color: #fff; opacity: .9; }
+    .cifra {
+      font-size: 3rem;
+      font-weight: 800;
+      line-height: 1;
+      margin: 8px 0 6px;
+    }
+    .cifra small { font-size: 1.1rem; font-weight: 600; }
+    .subcifra { margin: 0; font-size: 1rem; }
+    .subcifra strong { font-size: 1.15rem; }
+
+    /* Antes y después */
+    .comparacion {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+    .dato {
+      border-radius: 10px;
+      padding: 10px 8px;
+      text-align: center;
+    }
+    .dato span { display: block; font-size: .75rem; color: var(--tinta-suave); }
+    .dato strong { display: block; font-size: clamp(1.05rem, 5vw, 1.35rem); line-height: 1.2; white-space: nowrap; }
+    .dato.mano { background: #eef0ed; }
+    .dato.ia { background: var(--verde-suave); }
+    .dato.ahorro { background: var(--verde); color: #fff; }
+    .dato.ahorro span { color: #d6efe3; }
+
+    .barra-fila { margin-bottom: 14px; }
+    .barra-etiqueta {
+      display: flex;
+      justify-content: space-between;
+      font-size: .9rem;
+      margin-bottom: 4px;
+    }
+    .barra-fondo {
+      background: var(--gris);
+      border-radius: 8px;
+      height: 26px;
+      overflow: hidden;
+      display: flex;
+    }
+    .barra { height: 100%; transition: width .35s ease; }
+    .barra.sin-ia { background: #8a958f; }
+    .barra.generar { background: var(--verde); }
+    .barra.revisar { background: #5fb38f; }
+    .leyenda {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 16px;
+      margin-top: 4px;
+      font-size: .8rem;
+      color: var(--tinta-suave);
+    }
+    .leyenda span::before {
+      content: "";
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      margin-right: 6px;
+      vertical-align: middle;
+      background: var(--c);
+    }
+    .detalle {
+      margin: 14px 0 0;
+      padding: 0;
+      list-style: none;
+      font-size: .88rem;
+    }
+    .detalle li {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 6px 0;
+      border-top: 1px dashed var(--gris);
+    }
+    .detalle li.total { font-weight: 700; color: var(--verde-oscuro); }
+
+    /* Plan recomendado */
+    .recomendado {
+      border: 3px solid var(--verde);
+    }
+    .recomendado .etiqueta {
+      font-size: .85rem;
+      color: var(--tinta-suave);
+      margin: 0;
+    }
+    .plan-nombre {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--verde-oscuro);
+      margin: 2px 0 0;
+      line-height: 1.1;
+    }
+    .plan-precio {
+      font-size: 1rem;
+      font-weight: 700;
+      margin: 2px 0 10px;
+    }
+    .plan-motivo { margin: 0; font-size: .92rem; }
+    .plan-costo {
+      margin: 10px 0 0;
+      font-size: .88rem;
+      background: var(--verde-suave);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+
+    /* Todos los planes */
+    .planes {
+      display: grid;
+      gap: 10px;
+    }
+    .plan {
+      border: 2px solid var(--gris);
+      border-radius: 12px;
+      padding: 12px 14px;
+      position: relative;
+    }
+    .plan.activo {
+      border-color: var(--verde);
+      background: var(--verde-suave);
+    }
+    .plan-cabecera {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+    }
+    .plan h3 { margin: 0; font-size: 1.05rem; }
+    .plan .precio { font-weight: 700; font-size: .9rem; color: var(--verde-oscuro); white-space: nowrap; }
+    .plan ul {
+      margin: 8px 0 0;
+      padding-left: 18px;
+      font-size: .86rem;
+      color: var(--tinta-suave);
+    }
+    .plan li { margin: 2px 0; }
+    .insignia {
+      display: none;
+      margin-top: 8px;
+      font-size: .75rem;
+      font-weight: 700;
+      color: #fff;
+      background: var(--verde);
+      border-radius: 20px;
+      padding: 3px 10px;
+      width: fit-content;
+    }
+    .plan.activo .insignia { display: block; }
+
+    /* Avisos */
+    .aviso {
+      background: var(--ambar-suave);
+      border-left: 4px solid var(--ambar);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: .9rem;
+      margin-bottom: 16px;
+    }
+    .aviso strong { color: var(--ambar); }
+    .oculto { display: none; }
+
+    footer {
+      text-align: center;
+      font-size: .75rem;
+      color: var(--tinta-suave);
+      padding: 8px 16px 28px;
+      max-width: 560px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>¿Cuánto tiempo ahorrás con IA?</h1>
+    <p>Calculadora para docentes · Chalkie AI</p>
+  </header>
+
+  <main>
+
+    <!-- 1. Datos que completa el docente -->
+    <section class="tarjeta">
+      <h2>1. Tu semana de trabajo</h2>
+      <p class="bajada">Escribí el número o mové la barra. Con esto se calcula todo lo demás.</p>
+
+      <div class="campo">
+        <div class="campo-cabecera">
+          <label for="clases-num">Clases que preparás por semana</label>
+          <div class="valor"><input type="number" id="clases-num" inputmode="numeric"><span>clases</span></div>
+        </div>
+        <input type="range" id="clases" min="1" max="40" value="10" aria-label="Clases que preparás por semana">
+      </div>
+
+      <div class="campo">
+        <div class="campo-cabecera">
+          <label for="minClase-num">Tiempo para preparar cada clase</label>
+          <div class="valor"><input type="number" id="minClase-num" inputmode="numeric"><span>min</span></div>
+        </div>
+        <span class="ayuda">Presentación, actividades y materiales, sin IA.</span>
+        <input type="range" id="minClase" min="10" max="180" step="5" value="60" aria-label="Tiempo para preparar cada clase">
+      </div>
+
+      <div class="campo">
+        <div class="campo-cabecera">
+          <label for="fichas-num">Fichas o actividades extra por semana</label>
+          <div class="valor"><input type="number" id="fichas-num" inputmode="numeric"><span>fichas</span></div>
+        </div>
+        <span class="ayuda">Hojas de trabajo, repasos o evaluaciones aparte de las clases.</span>
+        <input type="range" id="fichas" min="0" max="30" value="4" aria-label="Fichas o actividades extra por semana">
+      </div>
+
+      <div class="campo">
+        <div class="campo-cabecera">
+          <label for="minFicha-num">Tiempo para hacer cada ficha</label>
+          <div class="valor"><input type="number" id="minFicha-num" inputmode="numeric"><span>min</span></div>
+        </div>
+        <input type="range" id="minFicha" min="5" max="120" step="5" value="30" aria-label="Tiempo para hacer cada ficha">
+      </div>
+    </section>
+
+    <!-- 2. Estimación automática -->
+    <section class="tarjeta">
+      <h2>2. Con Chalkie (se calcula solo)</h2>
+      <p class="bajada">Según lo que completaste, esto es lo que te llevaría cada recurso usando la IA:</p>
+      <ul class="auto-lista">
+        <li><span>Generar y ajustar una clase</span><strong id="autoGenClase"></strong></li>
+        <li><span>Revisar una clase</span><strong id="autoRevClase"></strong></li>
+        <li><span>Generar y ajustar una ficha</span><strong id="autoGenFicha"></strong></li>
+        <li><span>Revisar una ficha</span><strong id="autoRevFicha"></strong></li>
+      </ul>
+      <p class="supuesto">
+        Cómo se estima: generar con la IA lleva unos 5 minutos por clase y 3 por ficha
+        (escribir la consigna y pedir ajustes). Revisar lleva un 25 % del tiempo que tardás a mano,
+        porque hay que verificar datos, nivel, ejemplos y accesibilidad.
+      </p>
+    </section>
+
+    <!-- Resultado -->
+    <section class="tarjeta destacado" aria-live="polite">
+      <h2>Tiempo ahorrado por mes</h2>
+      <p class="cifra"><span id="horasAhorradas">0</span> <small>horas</small></p>
+      <p class="subcifra">Equivale a <strong id="jornadas">0</strong> <span id="jornadas-texto">jornadas</span> de 8 horas</p>
+    </section>
+
+    <section class="tarjeta">
+      <h2>Antes y después, por mes</h2>
+      <p class="bajada">Cuántas horas te llevan tus clases y fichas a mano, y cuántas con Chalkie.</p>
+
+      <div class="comparacion">
+        <div class="dato mano"><span>A mano</span><strong id="datoMano">0 h</strong></div>
+        <div class="dato ia"><span>Con Chalkie</span><strong id="datoIA">0 h</strong></div>
+        <div class="dato ahorro"><span>Ahorrás</span><strong id="datoAhorro">0 h</strong></div>
+      </div>
+
+      <div class="barra-fila">
+        <div class="barra-etiqueta"><span>A mano</span><strong id="etiquetaSin">0 h</strong></div>
+        <div class="barra-fondo"><div class="barra sin-ia" id="barraSin"></div></div>
+      </div>
+      <div class="barra-fila">
+        <div class="barra-etiqueta"><span>Con Chalkie</span><strong id="etiquetaCon">0 h</strong></div>
+        <div class="barra-fondo">
+          <div class="barra generar" id="barraGenerar"></div>
+          <div class="barra revisar" id="barraRevisar"></div>
+        </div>
+      </div>
+      <div class="leyenda">
+        <span style="--c:#8a958f">Preparación a mano</span>
+        <span style="--c:var(--verde)">Generar con IA</span>
+        <span style="--c:#5fb38f">Revisión docente</span>
+      </div>
+
+      <ul class="detalle">
+        <li><span>Preparar clases a mano</span><span id="detClasesMano"></span></li>
+        <li><span>Hacer fichas a mano</span><span id="detFichasMano"></span></li>
+        <li><span>Generar con Chalkie</span><span id="detGenerar"></span></li>
+        <li><span>Revisar lo generado</span><span id="detRevisar"></span></li>
+        <li class="total"><span>Horas ahorradas con la IA</span><span id="detAhorro"></span></li>
+      </ul>
+    </section>
+
+    <section class="aviso oculto" id="avisoSinAhorro">
+      <strong>Con estos valores casi no hay ahorro:</strong> tus recursos ya son muy rápidos de hacer a mano,
+      así que generarlos y revisarlos con IA lleva un tiempo parecido.
+    </section>
+
+    <!-- Plan recomendado -->
+    <section class="tarjeta recomendado">
+      <p class="etiqueta">Según tus estadísticas, el mejor plan para vos es:</p>
+      <p class="plan-nombre" id="planNombre"></p>
+      <p class="plan-precio" id="planPrecio"></p>
+      <p class="plan-motivo" id="planMotivo"></p>
+      <p class="plan-costo" id="planCosto"></p>
+    </section>
+
+    <!-- Todos los planes -->
+    <section class="tarjeta">
+      <h2>Beneficios de cada plan</h2>
+      <p class="bajada">Precios en dólares con pago anual, observados el 17/08/2026.</p>
+      <div class="planes">
+        <div class="plan" id="plan-gratis">
+          <div class="plan-cabecera"><h3>Gratis</h3><span class="precio">US$ 0</span></div>
+          <ul>
+            <li>5 recursos cada 7 días</li>
+            <li>10 ediciones con IA por semana</li>
+            <li>Exporta a Google y Microsoft</li>
+            <li>No pide tarjeta de crédito</li>
+          </ul>
+          <span class="insignia">Recomendado para vos</span>
+        </div>
+        <div class="plan" id="plan-pro">
+          <div class="plan-cabecera"><h3>Pro</h3><span class="precio">US$ 6,65/mes</span></div>
+          <ul>
+            <li>200 recursos y 400 ediciones por mes</li>
+            <li>Alineación con el currículo</li>
+            <li>Videos de YouTube en las clases</li>
+            <li>Unidades de hasta 12 clases</li>
+            <li>Sin la marca de Chalkie · US$ 79,80 al año</li>
+          </ul>
+          <span class="insignia">Recomendado para vos</span>
+        </div>
+        <div class="plan" id="plan-max">
+          <div class="plan-cabecera"><h3>Max</h3><span class="precio">US$ 12,99/mes</span></div>
+          <ul>
+            <li>Todo lo del plan Pro</li>
+            <li>400 recursos y 800 ediciones por mes</li>
+            <li>Unidades de hasta 25 clases</li>
+            <li>Temas visuales y fuentes personalizadas</li>
+            <li>US$ 155,88 al año</li>
+          </ul>
+          <span class="insignia">Recomendado para vos</span>
+        </div>
+        <div class="plan" id="plan-escuelas">
+          <div class="plan-cabecera"><h3>Escuelas</h3><span class="precio">A cotizar</span></div>
+          <ul>
+            <li>Cuentas de docentes vinculadas</li>
+            <li>Controles de administración y seguimiento</li>
+            <li>Facturación centralizada</li>
+            <li>Lecciones compartidas entre docentes</li>
+          </ul>
+          <span class="insignia">Recomendado para vos</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    Estimación orientativa: el ahorro real depende de cada docente y de cuánto haya que corregir.
+    Precios de chalkie.ai observados el 17/08/2026; pueden cambiar. Se considera un mes de 4,3 semanas.
+    No se guarda ningún dato.
+  </footer>
+
+  <script>
+    const SEMANAS_POR_MES = 4.3;
+    const HORAS_POR_JORNADA = 8;
+
+    // Supuestos de la estimación automática
+    const GENERAR_CLASE = 5;      // minutos para generar y ajustar una clase
+    const GENERAR_FICHA = 3;      // minutos para generar y ajustar una ficha
+    const PORC_REVISION = 0.25;   // la revisión lleva 25 % del tiempo a mano
+    const REVISION_MINIMA = 2;    // minutos mínimos de revisión por recurso
+
+    const campos = ["clases", "minClase", "fichas", "minFicha"];
+    const $ = id => document.getElementById(id);
+
+    const formatear = n => n.toLocaleString("es-AR", { maximumFractionDigits: 1 });
+    const minutos = n => formatear(n) + " min";
+    const horas = n => formatear(n) + " h";
+
+    const planes = {
+      gratis: {
+        nombre: "Gratis",
+        precio: "US$ 0",
+        costoMes: 0,
+        motivo: r => `Preparás unos ${r.semana} recursos por semana y el plan gratuito incluye 5 cada 7 días. Te alcanza sin pagar nada.`
+      },
+      pro: {
+        nombre: "Pro",
+        precio: "US$ 6,65 por mes (pago anual)",
+        costoMes: 6.65,
+        motivo: r => `Necesitás unos ${r.mes} recursos por mes y el plan gratuito solo da 5 por semana. El Pro incluye 200 por mes, así que te sobra margen.`
+      },
+      max: {
+        nombre: "Max",
+        precio: "US$ 12,99 por mes (pago anual)",
+        costoMes: 12.99,
+        motivo: r => `Necesitás unos ${r.mes} recursos por mes: superás los 200 del plan Pro. El Max incluye 400 por mes.`
+      },
+      escuelas: {
+        nombre: "Escuelas",
+        precio: "Precio a cotizar con Chalkie",
+        costoMes: null,
+        motivo: r => `Necesitás unos ${r.mes} recursos por mes, más de los 400 del plan Max. Conviene el plan para escuelas, que se contrata entre varios docentes.`
+      }
+    };
+
+    function elegirPlan(porSemana, porMes) {
+      if (porSemana <= 5) return "gratis";
+      if (porMes <= 200) return "pro";
+      if (porMes <= 400) return "max";
+      return "escuelas";
+    }
+
+    // Mantiene sincronizados el deslizador y la casilla numérica
+    function sincronizar(id, desdeCasilla) {
+      const rango = $(id), casilla = $(id + "-num");
+      if (desdeCasilla) {
+        let v = Number(casilla.value);
+        if (casilla.value === "" || isNaN(v)) return;
+        v = Math.min(Number(rango.max), Math.max(Number(rango.min), v));
+        rango.value = v;
+      } else {
+        casilla.value = rango.value;
+      }
+    }
+
+    function leer(id) {
+      const casilla = $(id + "-num"), rango = $(id);
+      const v = Number(casilla.value);
+      if (casilla.value === "" || isNaN(v)) return Number(rango.value);
+      return Math.min(Number(rango.max), Math.max(Number(rango.min), v));
+    }
+
+    function calcular() {
+      const clases = leer("clases"), minClase = leer("minClase");
+      const fichas = leer("fichas"), minFicha = leer("minFicha");
+
+      // Estimación automática por recurso
+      const revClase = Math.max(REVISION_MINIMA, minClase * PORC_REVISION);
+      const revFicha = Math.max(REVISION_MINIMA, minFicha * PORC_REVISION);
+      const genClase = Math.min(GENERAR_CLASE, minClase);
+      const genFicha = Math.min(GENERAR_FICHA, minFicha);
+
+      $("autoGenClase").textContent = minutos(genClase);
+      $("autoRevClase").textContent = minutos(revClase);
+      $("autoGenFicha").textContent = minutos(genFicha);
+      $("autoRevFicha").textContent = minutos(revFicha);
+
+      // Horas por mes
+      const mes = m => m * SEMANAS_POR_MES / 60;
+      const clasesMano = mes(clases * minClase);
+      const fichasMano = mes(fichas * minFicha);
+      const aMano = clasesMano + fichasMano;
+      const generar = mes(clases * genClase + fichas * genFicha);
+      const revisar = mes(clases * revClase + fichas * revFicha);
+      const conIA = generar + revisar;
+      const ahorro = Math.max(0, aMano - conIA);
+      const porcentaje = aMano > 0 ? Math.round(ahorro / aMano * 100) : 0;
+
+      // Resultado principal
+      $("horasAhorradas").textContent = formatear(ahorro);
+      const jornadas = ahorro / HORAS_POR_JORNADA;
+      $("jornadas").textContent = formatear(jornadas);
+      $("jornadas-texto").textContent = jornadas === 1 ? "jornada" : "jornadas";
+
+      // Antes y después
+      $("datoMano").textContent = horas(aMano);
+      $("datoIA").textContent = horas(conIA);
+      $("datoAhorro").textContent = horas(ahorro);
+
+      const maximo = Math.max(aMano, conIA, 0.01);
+      $("barraSin").style.width = (aMano / maximo * 100) + "%";
+      $("barraGenerar").style.width = (generar / maximo * 100) + "%";
+      $("barraRevisar").style.width = (revisar / maximo * 100) + "%";
+      $("etiquetaSin").textContent = horas(aMano);
+      $("etiquetaCon").textContent = horas(conIA);
+
+      $("detClasesMano").textContent = horas(clasesMano);
+      $("detFichasMano").textContent = horas(fichasMano);
+      $("detGenerar").textContent = horas(generar);
+      $("detRevisar").textContent = horas(revisar);
+      $("detAhorro").textContent = horas(ahorro) + " (" + porcentaje + " % menos)";
+
+      $("avisoSinAhorro").classList.toggle("oculto", porcentaje >= 10);
+
+      // Plan recomendado
+      const porSemana = clases + fichas;
+      const porMes = Math.round(porSemana * SEMANAS_POR_MES);
+      const clave = elegirPlan(porSemana, porMes);
+      const plan = planes[clave];
+      $("planNombre").textContent = "Plan " + plan.nombre;
+      $("planPrecio").textContent = plan.precio;
+      $("planMotivo").textContent = plan.motivo({ semana: porSemana, mes: porMes });
+
+      let costo;
+      if (plan.costoMes === 0) {
+        costo = "Ahorrás " + horas(ahorro) + " por mes sin gastar nada.";
+      } else if (plan.costoMes === null) {
+        costo = "El costo se acuerda con la escuela; el ahorro estimado es de " + horas(ahorro) + " por mes para vos.";
+      } else if (ahorro > 0) {
+        const porHora = plan.costoMes / ahorro;
+        costo = "Cada hora que ahorrás te cuesta unos US$ " +
+          porHora.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ".";
+      } else {
+        costo = "Con estos valores el ahorro es muy bajo para que convenga pagar.";
+      }
+      $("planCosto").textContent = costo;
+
+      ["gratis", "pro", "max", "escuelas"].forEach(p => {
+        $("plan-" + p).classList.toggle("activo", p === clave);
+      });
+    }
+
+    campos.forEach(id => {
+      $(id).addEventListener("input", () => { sincronizar(id, false); calcular(); });
+      $(id + "-num").addEventListener("input", () => { sincronizar(id, true); calcular(); });
+      $(id + "-num").addEventListener("blur", () => { sincronizar(id, false); calcular(); });
+      sincronizar(id, false);
+    });
+    calcular();
+  </script>
+</body>
+</html>
